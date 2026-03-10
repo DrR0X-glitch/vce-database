@@ -1,0 +1,373 @@
+{
+  "subjects": [
+    {
+      "name": "Biology",
+      "token": "BIOLOGY",
+      "aliases": ["bio"],
+      "group": "Science",
+      "taxonomy": {
+        "aos": [
+          {
+            "id": "3.1",
+            "name": "Nucleic Acids, Proteins and DNA Manipulation",
+            "description": "Structure and function of DNA and RNA, gene expression, protein synthesis and regulation of genes. Includes biotechnology tools such as PCR, CRISPR-Cas9, gel electrophoresis and recombinant plasmids, and their applications in medicine and agriculture."
+          },
+          {
+            "id": "3.2",
+            "name": "Biochemical Pathways",
+            "description": "Structure and regulation of biochemical pathways in photosynthesis and cellular respiration, including enzyme function and factors affecting reaction rates. Includes biotechnology applications to improve crop yields and produce biofuels."
+          },
+          {
+            "id": "4.1",
+            "name": "Immunity and Disease",
+            "description": "Structure and function of innate and adaptive immune responses, antigen recognition, acquisition of immunity and vaccination. Includes disease control strategies and the development of immunotherapies."
+          },
+          {
+            "id": "4.2",
+            "name": "Evolution and Biological Change",
+            "description": "Genetic changes in populations over time, mechanisms of evolution and speciation, evidence for relatedness between species, and trends in human evolution supported by fossil and molecular evidence."
+          },
+          {
+            "id": "4.3",
+            "name": "Scientific Investigation",
+            "description": "Student-designed scientific investigation involving the generation and analysis of primary data related to cellular processes or biological change, culminating in a scientific poster."
+          }
+        ],
+        "topics": [
+          {
+            "id": "DNA_RNA_AND_GENETIC_CODE",
+            "aos_id": "3.1",
+            "name": "DNA, RNA and the Genetic Code",
+            "description": "Structure of DNA and RNA molecules; roles of mRNA, rRNA and tRNA; universal and degenerate triplet genetic code; transcription, RNA processing and translation in protein synthesis."
+          },
+          {
+            "id": "GENE_STRUCTURE_AND_REGULATION",
+            "aos_id": "3.1",
+            "name": "Gene Structure and Regulation",
+            "description": "Structure of genes including exons, introns, promoters and operators; regulation of gene expression using the prokaryotic trp operon as a model."
+          },
+          {
+            "id": "PROTEINS_AND_PROTEOME",
+            "aos_id": "3.1",
+            "name": "Protein Structure and Function",
+            "description": "Amino acids and polypeptide formation; primary to quaternary protein structure; enzymes as catalysts; role of the rough ER, Golgi apparatus and vesicles in the protein secretory pathway."
+          },
+          {
+            "id": "DNA_MANIPULATION_TECHNIQUES",
+            "aos_id": "3.1",
+            "name": "DNA Manipulation Techniques",
+            "description": "Biotechnology tools including polymerase, ligase and restriction enzymes; PCR amplification; gel electrophoresis and DNA profiling; recombinant plasmids; applications such as insulin production and CRISPR-Cas9 genome editing."
+          },
+          {
+            "id": "PHOTOSYNTHESIS_PATHWAYS",
+            "aos_id": "3.2",
+            "name": "Photosynthesis",
+            "description": "Structure and stages of photosynthesis in C3 plants, including light-dependent and light-independent reactions; role of Rubisco; adaptations of C3, C4 and CAM plants; factors affecting photosynthesis rate."
+          },
+          {
+            "id": "CELLULAR_RESPIRATION_PATHWAYS",
+            "aos_id": "3.2",
+            "name": "Cellular Respiration",
+            "description": "Major stages of cellular respiration including glycolysis, Krebs cycle and electron transport chain; ATP yield; anaerobic fermentation in animals and yeast; factors affecting respiration rate."
+          },
+          {
+            "id": "ENZYME_REGULATION_AND_FACTORS",
+            "aos_id": "3.2",
+            "name": "Enzyme Function and Regulation",
+            "description": "Role of enzymes and coenzymes in biochemical pathways; factors affecting enzyme activity including temperature, pH, substrate concentration and enzyme inhibitors."
+          },
+          {
+            "id": "BIOTECH_APPLICATIONS_BIOCHEM_PATHWAYS",
+            "aos_id": "3.2",
+            "name": "Biotechnological Applications of Biochemical Pathways",
+            "description": "Applications of biotechnology including CRISPR-Cas9 to improve photosynthetic efficiency and crop yields, and fermentation of biomass for biofuel production."
+          },
+          {
+            "id": "INNATE_IMMUNE_RESPONSE",
+            "aos_id": "4.1",
+            "name": "Innate Immune Response",
+            "description": "First-line defenses including physical, chemical and microbiota barriers; inflammatory response; roles of immune cells such as macrophages, neutrophils, dendritic cells, natural killer cells and complement proteins."
+          },
+          {
+            "id": "ADAPTIVE_IMMUNITY",
+            "aos_id": "4.1",
+            "name": "Adaptive Immune Response",
+            "description": "Antigen presentation and recognition; roles of B cells, antibodies, helper T cells and cytotoxic T cells; lymphatic system and lymph nodes in immune responses."
+          },
+          {
+            "id": "IMMUNITY_AND_VACCINATION",
+            "aos_id": "4.1",
+            "name": "Acquiring Immunity and Disease Control",
+            "description": "Natural and artificial immunity; active and passive immunity; vaccination programs and herd immunity; pathogen identification and transmission control strategies."
+          },
+          {
+            "id": "IMMUNOTHERAPIES_AND_DISEASE",
+            "aos_id": "4.1",
+            "name": "Immunotherapies and Disease Treatment",
+            "description": "Development and application of immunotherapies including monoclonal antibodies for autoimmune diseases and cancer."
+          },
+          {
+            "id": "ALLELE_FREQUENCY_CHANGES",
+            "aos_id": "4.2",
+            "name": "Genetic Changes in Populations",
+            "description": "Mechanisms altering allele frequencies including mutation, natural selection, genetic drift and gene flow; impacts on genetic diversity."
+          },
+          {
+            "id": "SPECIATION_AND_EVOLUTION",
+            "aos_id": "4.2",
+            "name": "Speciation and Evolutionary Processes",
+            "description": "Speciation through isolation and divergence; examples including Galápagos finches (allopatric speciation) and Howea palms on Lord Howe Island (sympatric speciation)."
+          },
+          {
+            "id": "EVIDENCE_FOR_EVOLUTION",
+            "aos_id": "4.2",
+            "name": "Evidence for Evolution and Relatedness",
+            "description": "Fossil record evidence including faunal succession and dating; structural morphology and molecular homology; interpretation of phylogenetic trees."
+          },
+          {
+            "id": "HUMAN_EVOLUTION",
+            "aos_id": "4.2",
+            "name": "Human Evolution",
+            "description": "Evolutionary trends from Australopithecus to Homo; changes in brain size and limb structure; evidence of interbreeding with Neanderthals; migration of modern human populations using fossil and DNA evidence."
+          },
+          {
+            "id": "BIOLOGY_SCIENTIFIC_INVESTIGATION",
+            "aos_id": "4.3",
+            "name": "Student Scientific Investigation",
+            "description": "Design and conduct of a biological investigation involving hypothesis development, data collection, analysis and evaluation, and presentation of findings in a scientific poster."
+          }
+        ]
+      }
+    },
+    {
+      "name": "Physics",
+      "token": "PHYSICS",
+      "aliases": ["physics", "phys"],
+      "group": "Science",
+      "taxonomy": {
+        "aos": [
+          {
+            "id": "3.1",
+            "name": "Motion in One and Two Dimensions",
+            "description": "Application of Newton’s laws to analyse motion in straight lines and two dimensions including projectile motion, circular motion and satellite motion. Includes relationships between force, work, energy and momentum."
+          },
+          {
+            "id": "3.2",
+            "name": "Fields and Interactions",
+            "description": "Use of field models to explain gravitational, electric and magnetic interactions. Includes field strength, forces on particles, satellite motion, motors and particle accelerators."
+          },
+          {
+            "id": "3.3",
+            "name": "Electricity Generation and Distribution",
+            "description": "Production of electricity using electromagnetic induction and its transmission through power networks. Includes AC generation, transformers and energy losses in transmission."
+          },
+          {
+            "id": "4.1",
+            "name": "How Understanding of the Physical World Has Changed",
+            "description": "Development of models explaining light and matter including wave and particle behaviour, quantum concepts, electron diffraction and Einstein’s special relativity."
+          },
+          {
+            "id": "4.2",
+            "name": "Scientific Investigation",
+            "description": "Student-designed investigation related to fields, motion or light involving data collection, analysis, evaluation and presentation as a scientific poster."
+          }
+        ],
+        "topics": [
+          {
+            "id": "NEWTONS_LAWS_AND_LINEAR_MOTION",
+            "aos_id": "3.1",
+            "name": "Newton’s Laws and Linear Motion",
+            "description": "Application of Newton’s three laws of motion to analyse forces and motion in one dimension."
+          },
+          {
+            "id": "PROJECTILE_AND_CIRCULAR_MOTION",
+            "aos_id": "3.1",
+            "name": "Projectile and Circular Motion",
+            "description": "Analysis of projectile motion and uniform circular motion including centripetal force and satellite motion."
+          },
+          {
+            "id": "WORK_ENERGY_AND_MOMENTUM",
+            "aos_id": "3.1",
+            "name": "Work, Energy and Momentum",
+            "description": "Energy transformations including kinetic, gravitational potential and elastic potential energy, as well as impulse and conservation of momentum."
+          },
+          {
+            "id": "GRAVITATIONAL_ELECTRIC_AND_MAGNETIC_FIELDS",
+            "aos_id": "3.2",
+            "name": "Gravitational, Electric and Magnetic Fields",
+            "description": "Field models describing gravitational, electric and magnetic interactions including inverse square laws and field directions."
+          },
+          {
+            "id": "CHARGED_PARTICLES_IN_FIELDS",
+            "aos_id": "3.2",
+            "name": "Charged Particles in Fields",
+            "description": "Motion of charged particles in electric and magnetic fields including forces, acceleration and circular paths."
+          },
+          {
+            "id": "APPLICATIONS_OF_FIELDS",
+            "aos_id": "3.2",
+            "name": "Applications of Field Concepts",
+            "description": "Applications including satellite motion, DC motors and particle accelerators."
+          },
+          {
+            "id": "ELECTROMAGNETIC_INDUCTION",
+            "aos_id": "3.3",
+            "name": "Electromagnetic Induction",
+            "description": "Generation of electromotive force through changing magnetic flux including Faraday’s law."
+          },
+          {
+            "id": "AC_GENERATION_AND_WAVEFORMS",
+            "aos_id": "3.3",
+            "name": "AC Generation and Waveforms",
+            "description": "Characteristics of alternating current including frequency, amplitude and RMS values."
+          },
+          {
+            "id": "TRANSFORMERS_AND_POWER_TRANSMISSION",
+            "aos_id": "3.3",
+            "name": "Transformers and Power Transmission",
+            "description": "Transformer operation and the efficient transmission of electrical power over long distances."
+          },
+          {
+            "id": "LIGHT_AS_A_WAVE",
+            "aos_id": "4.1",
+            "name": "Light as a Wave",
+            "description": "Wave properties of light including interference, diffraction and standing waves."
+          },
+          {
+            "id": "LIGHT_AS_A_PARTICLE",
+            "aos_id": "4.1",
+            "name": "Light as a Particle",
+            "description": "Photon model of light including quantised energy and the photoelectric effect."
+          },
+          {
+            "id": "MATTER_WAVES_AND_QUANTUM_IDEAS",
+            "aos_id": "4.1",
+            "name": "Matter Waves and Quantum Ideas",
+            "description": "Wave behaviour of matter including electron diffraction and the de Broglie wavelength."
+          },
+          {
+            "id": "SPECIAL_RELATIVITY",
+            "aos_id": "4.1",
+            "name": "Einstein’s Special Relativity",
+            "description": "Relativistic effects including time dilation, length contraction and mass–energy equivalence."
+          },
+          {
+            "id": "INVESTIGATION_DESIGN",
+            "aos_id": "4.2",
+            "name": "Investigation Design",
+            "description": "Designing a scientific investigation including hypothesis formation, variables and experimental methodology."
+          },
+          {
+            "id": "DATA_ANALYSIS_AND_EVIDENCE",
+            "aos_id": "4.2",
+            "name": "Data Analysis and Scientific Evidence",
+            "description": "Evaluation and analysis of primary data including uncertainty, error and graphical interpretation."
+          },
+          {
+            "id": "SCIENTIFIC_COMMUNICATION",
+            "aos_id": "4.2",
+            "name": "Scientific Communication",
+            "description": "Presentation of scientific investigations using conventions such as a scientific poster and appropriate physics notation."
+          }
+        ]
+      }
+    },
+    {
+      "name": "Chemistry",
+      "token": "CHEMISTRY",
+      "aliases": ["chem"],
+      "group": "Science",
+      "taxonomy": {
+        "aos": [
+          {
+            "id": "3.1",
+            "name": "Energy Production from Fuels and Electrochemical Cells",
+            "description": "Comparison of fossil fuels and biofuels as energy sources, thermochemical equations, stoichiometry of combustion reactions and calorimetry. Includes electrochemical cells such as galvanic cells, fuel cells and the electrochemical series in predicting cell reactions and designing energy systems."
+          },
+          {
+            "id": "3.2",
+            "name": "Rates, Equilibrium and Electrolysis",
+            "description": "Factors affecting reaction rates and mechanisms including catalysts and activation energy. Dynamic chemical equilibrium and Le Chatelier’s principle. Quantitative treatment using equilibrium expressions and reaction quotients. Electrolysis processes used in the production of chemicals and materials."
+          },
+          {
+            "id": "4.1",
+            "name": "Structure, Reactions and Synthesis of Organic Compounds",
+            "description": "Structure, nomenclature, properties and reactions of organic compounds including hydrocarbons and functional groups. Organic reaction pathways, synthesis, metabolism of biomolecules and applications of green chemistry principles."
+          },
+          {
+            "id": "4.2",
+            "name": "Analysis of Organic Compounds and Medicinal Chemistry",
+            "description": "Laboratory and instrumental analysis of organic compounds including spectroscopy (IR, NMR, MS), chromatography and titration. Extraction and purification of compounds and the role of organic molecules as medicines including enzyme inhibition and structure–function relationships."
+          },
+          {
+            "id": "4.3",
+            "name": "Scientific Investigation in Chemistry",
+            "description": "Student-designed investigation involving primary data related to energy production, chemical synthesis or analysis of organic compounds. Includes experimental design, data analysis, evaluation of evidence and scientific communication through a scientific poster."
+          }
+        ],
+        "topics": [
+          {
+            "id": "FUELS_AND_THERMOCHEMISTRY",
+            "aos_id": "3.1",
+            "name": "Carbon-Based Fuels and Thermochemistry",
+            "description": "Combustion reactions of fuels, thermochemical equations, enthalpy changes, calorimetry and stoichiometric calculations involving energy release and greenhouse gas production."
+          },
+          {
+            "id": "ELECTROCHEMICAL_CELLS",
+            "aos_id": "3.1",
+            "name": "Galvanic Cells and Fuel Cells",
+            "description": "Redox reactions, electrochemical series, half-equations and the design and operation of primary galvanic cells and fuel cells for energy production."
+          },
+          {
+            "id": "REACTION_RATES",
+            "aos_id": "3.2",
+            "name": "Rates of Chemical Reactions",
+            "description": "Collision theory, activation energy, catalysts and factors influencing reaction rates including temperature, concentration, pressure and surface area."
+          },
+          {
+            "id": "CHEMICAL_EQUILIBRIUM",
+            "aos_id": "3.2",
+            "name": "Chemical Equilibrium",
+            "description": "Dynamic equilibrium systems, equilibrium constants, reaction quotients and the application of Le Chatelier’s principle to optimise reaction yield."
+          },
+          {
+            "id": "ELECTROLYSIS",
+            "aos_id": "3.2",
+            "name": "Electrolysis and Industrial Chemical Production",
+            "description": "Electrolytic cells, Faraday’s laws, prediction of electrolysis products and applications in producing chemicals and materials such as hydrogen."
+          },
+          {
+            "id": "ORGANIC_STRUCTURE_AND_NAMING",
+            "aos_id": "4.1",
+            "name": "Organic Structure and Nomenclature",
+            "description": "Structures, bonding and IUPAC naming of organic compounds including hydrocarbons, haloalkanes, alcohols, aldehydes, ketones, carboxylic acids, esters and amines."
+          },
+          {
+            "id": "ORGANIC_REACTIONS",
+            "aos_id": "4.1",
+            "name": "Organic Reactions and Synthesis",
+            "description": "Substitution, addition, esterification, hydrolysis and reaction pathways for synthesising organic molecules including biomolecules and biodiesel."
+          },
+          {
+            "id": "ORGANIC_ANALYSIS",
+            "aos_id": "4.2",
+            "name": "Laboratory and Instrumental Analysis",
+            "description": "Identification and analysis of organic compounds using techniques such as distillation, titration, mass spectrometry, infrared spectroscopy, NMR spectroscopy and chromatography."
+          },
+          {
+            "id": "MEDICINAL_CHEMISTRY",
+            "aos_id": "4.2",
+            "name": "Medicinal Chemistry and Enzyme Inhibition",
+            "description": "Structure and function of medicines, enzyme catalysis, competitive inhibition and extraction of natural compounds used in pharmaceuticals."
+          },
+          {
+            "id": "CHEMICAL_INVESTIGATION",
+            "aos_id": "4.3",
+            "name": "Scientific Investigation",
+            "description": "Designing, conducting and communicating a chemistry investigation including hypothesis development, data collection, analysis, evaluation and presentation."
+          }
+        ]
+      }
+    }
+  ]
+}

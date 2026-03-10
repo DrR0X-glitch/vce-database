@@ -1,12 +1,12 @@
 # VCE Database
 
-Simple React app for browsing VCE exam questions from `data.json` using taxonomy from `config/subject_taxonomy.json`.
+Simple Next.js app for browsing VCE exam questions from `data.json` using taxonomy from `config/subject_taxonomy.json`.
 
 ## Local development
 
 ```bash
 npm install
-npm start
+npm run dev
 ```
 
 ## Build
@@ -20,7 +20,7 @@ npm run build
 This repo includes a GitHub Actions workflow that:
 
 1. Builds the app on pushes to `main`
-2. Publishes the `build/` output to GitHub Pages at site root (`/`)
+2. Publishes the static export (`out/`) to GitHub Pages at site root (`/`)
 
 After pushing these changes, in GitHub go to:
 `Settings -> Pages -> Build and deployment -> Source` and set it to `GitHub Actions`.

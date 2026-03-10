@@ -1123,34 +1123,28 @@ function App() {
               <ul>
                 {filteredRows.map((row) => (
                   <li key={row.id}>
-                    <div
-                      className="question-row"
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => handleRowActivate(row)}
-                      onKeyDown={(event) => {
-                        if (event.key === 'Enter' || event.key === ' ') {
-                          event.preventDefault();
-                          handleRowActivate(row);
-                        }
-                      }}
-                      aria-label={`${row.question_label || row.id} question link`}
-                    >
-                      <span className="cell chip-cell">
-                        <span className="chip chip-topic">{topicById[row.topic_id]?.name || 'Unknown'}</span>
-                        <span className="chip chip-aos">{formatAosLabel(row.aos_id)}</span>
-                      </span>
-                      <span className="cell">{row.source}</span>
-                      <span className="cell">{row.year}</span>
-                      <span className="cell">{row.section}</span>
-                      <span className="cell label soft">{row.question_label || row.id}</span>
-                      <span className="cell row-links" onClick={(event) => event.stopPropagation()}>
+                    <div className="question-row">
+                      <button
+                        type="button"
+                        className="question-row-main"
+                        onClick={() => handleRowActivate(row)}
+                        aria-label={`${row.question_label || row.id} question link`}
+                      >
+                        <span className="cell chip-cell">
+                          <span className="chip chip-topic">{topicById[row.topic_id]?.name || 'Unknown'}</span>
+                          <span className="chip chip-aos">{formatAosLabel(row.aos_id)}</span>
+                        </span>
+                        <span className="cell">{row.source}</span>
+                        <span className="cell">{row.year}</span>
+                        <span className="cell">{row.section}</span>
+                        <span className="cell label soft">{row.question_label || row.id}</span>
+                      </button>
+                      <span className="cell row-links">
                         <a
                           className="row-link-btn"
                           href={row.exam_url}
                           target="_blank"
                           rel="noreferrer"
-                          onClick={(event) => event.stopPropagation()}
                         >
                           Question
                         </a>
@@ -1159,7 +1153,6 @@ function App() {
                           href={row.assessor_url}
                           target="_blank"
                           rel="noreferrer"
-                          onClick={(event) => event.stopPropagation()}
                         >
                           AR
                         </a>

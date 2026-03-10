@@ -1,7 +1,7 @@
 # AGENTS.md
 
 ## Purpose
-This project is a Create React App frontend for browsing VCE exam questions from extracted metadata (`data.json`) and subject taxonomy (`config/subject_taxonomy.json`).
+This project is a Next.js static-export frontend for browsing VCE exam questions from extracted metadata (`data.json`) and subject taxonomy (`config/subject_taxonomy.json`).
 
 ## Current App Shape (source of truth: `src/App.js`)
 - Single-page React app (no `react-router`).
@@ -49,12 +49,8 @@ This project is a Create React App frontend for browsing VCE exam questions from
 - When implementing new features, decide whether to follow current code-first behavior or move toward the spec; call this out explicitly in PR notes.
 
 ## Testing
-- Unit tests are in `src/App.test.js`.
-- Useful command:
-  - `npm test -- --watch=false`
-- Existing tests cover:
-  - Subject selection and list rendering.
-  - Row click behavior (opens `exam_url`) and link presence.
+- No automated test runner is currently configured.
+- `npm test` is a placeholder command that exits successfully.
 
 ## Change Guidelines
 - Keep `src/App.js` as the source of behavior truth unless actively refactoring.

@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { BlobReader, BlobWriter, TextWriter, ZipReader } from '@zip.js/zip.js';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 const SHOW_IMAGES_BETA = false;
 const BASE_PATH = normalizeBasePath(process.env.NEXT_PUBLIC_BASE_PATH);
@@ -40,6 +41,14 @@ function normalizeSubquestion(value) {
   }
 
   return String(value).toLowerCase();
+}
+
+function normalizeZipPath(pathValue) {
+  return String(pathValue || '')
+    .replace(/\\/g, '/')
+    .replace(/^\.\//, '')
+    .replace(/^\//, '')
+    .trim();
 }
 
 function toSortValue(value) {
@@ -222,14 +231,20 @@ function formatAosLabel(aosId) {
   return `U${match[1]} AOS${match[2]}`;
 }
 
+function getMajorQuestionKey(row) {
+  return [row?.exam_folder || '', row?.section || '', row?.question_number || ''].join('__');
+}
+
 function App() {
   const [subjects, setSubjects] = useState([]);
   const [subjectCatalogLoading, setSubjectCatalogLoading] = useState(true);
   const [selectedSubjectToken, setSelectedSubjectToken] = useState('');
 
   const [allRows, setAllRows] = useState([]);
+  const [defaultRows, setDefaultRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [datasetError, setDatasetError] = useState('');
   const [selectedRowId, setSelectedRowId] = useState('');
 
   const [search, setSearch] = useState('');
@@ -238,6 +253,208 @@ function App() {
   const [sectionFilter, setSectionFilter] = useState('all');
   const [aosFilter, setAosFilter] = useState('all');
   const [topicFilter, setTopicFilter] = useState('all');
+
+  const [datasetMode, setDatasetMode] = useState(false);
+  const [datasetLoading, setDatasetLoading] = useState(false);
+  const [datasetFileName, setDatasetFileName] = useState('');
+  const [datasetMetadata, setDatasetMetadata] = useState(null);
+  const [datasetAssetUrls, setDatasetAssetUrls] = useState({});
+
+  const fileInputRef = useRef(null);
+  const zipReaderRef = useRef(null);
+  const zipEntryMapRef = useRef(new Map());
+  const zipSuffixCacheRef = useRef(new Map());
+  const datasetAssetUrlMapRef = useRef(new Map());
+  const pendingAssetLoadsRef = useRef(new Map());
+
+  const showImagesMode = SHOW_IMAGES_BETA || datasetMode;
+  const datasetTitle = String(datasetMetadata?.title || datasetFileName || 'Uploaded dataset');
+  const datasetDescription = String(datasetMetadata?.description || '');
+
+  function clearDatasetAssetUrls() {
+    for (const url of datasetAssetUrlMapRef.current.values()) {
+      URL.revokeObjectURL(url);
+    }
+
+    datasetAssetUrlMapRef.current.clear();
+    pendingAssetLoadsRef.current.clear();
+    setDatasetAssetUrls({});
+  }
+
+  async function closeCurrentReader() {
+    if (!zipReaderRef.current) {
+      return;
+    }
+
+    const currentReader = zipReaderRef.current;
+    zipReaderRef.current = null;
+
+    try {
+      await currentReader.close();
+    } catch {
+      // Ignore close errors from partially read archives.
+    }
+  }
+
+  function resetDatasetState(nextRows) {
+    setDatasetMode(false);
+    setDatasetFileName('');
+    setDatasetMetadata(null);
+    zipEntryMapRef.current.clear();
+    zipSuffixCacheRef.current.clear();
+    clearDatasetAssetUrls();
+    setSelectedRowId('');
+    setAllRows(Array.isArray(nextRows) ? nextRows : defaultRows);
+  }
+
+  async function loadDatasetFromZip(file) {
+    if (!file) {
+      return;
+    }
+
+    setDatasetLoading(true);
+    setDatasetError('');
+
+    try {
+      await closeCurrentReader();
+      clearDatasetAssetUrls();
+      zipEntryMapRef.current.clear();
+      zipSuffixCacheRef.current.clear();
+
+      const nextReader = new ZipReader(new BlobReader(file));
+      const entries = await nextReader.getEntries();
+
+      const fileEntries = entries.filter((entry) => !entry.directory);
+      const entryMap = new Map(fileEntries.map((entry) => [normalizeZipPath(entry.filename), entry]));
+
+      const metadataEntry = fileEntries.find((entry) => {
+        const filename = normalizeZipPath(entry.filename).toLowerCase();
+        return filename === 'metadata.json' || filename.endsWith('/metadata.json');
+      });
+
+      const indexEntry = fileEntries.find((entry) => {
+        const filename = normalizeZipPath(entry.filename).toLowerCase();
+        return filename === 'index.json' || filename.endsWith('/index.json');
+      });
+
+      if (!indexEntry) {
+        throw new Error('Dataset zip is missing index.json');
+      }
+
+      const indexText = await indexEntry.getData(new TextWriter());
+      const indexRows = JSON.parse(indexText);
+
+      if (!Array.isArray(indexRows)) {
+        throw new Error('index.json must contain a JSON array of rows');
+      }
+
+      let metadataPayload = {};
+      if (metadataEntry) {
+        try {
+          const metadataText = await metadataEntry.getData(new TextWriter());
+          const parsedMetadata = JSON.parse(metadataText);
+          metadataPayload = parsedMetadata && typeof parsedMetadata === 'object' ? parsedMetadata : {};
+        } catch {
+          metadataPayload = {};
+        }
+      }
+
+      zipReaderRef.current = nextReader;
+      zipEntryMapRef.current = entryMap;
+      zipSuffixCacheRef.current.clear();
+
+      setDatasetMode(true);
+      setDatasetFileName(file.name || 'dataset.zip');
+      setDatasetMetadata(metadataPayload);
+      setSelectedRowId('');
+      setAllRows(indexRows);
+      setDatasetError('');
+    } catch (loadError) {
+      await closeCurrentReader();
+      zipEntryMapRef.current.clear();
+      zipSuffixCacheRef.current.clear();
+      clearDatasetAssetUrls();
+      setDatasetMode(false);
+      setDatasetFileName('');
+      setDatasetMetadata(null);
+      setAllRows(defaultRows);
+      setDatasetError(loadError.message || 'Failed to load dataset zip.');
+    } finally {
+      setDatasetLoading(false);
+    }
+  }
+
+  function resolveDatasetEntry(pathValue) {
+    const normalized = normalizeZipPath(pathValue);
+    if (!normalized) {
+      return null;
+    }
+
+    if (zipEntryMapRef.current.has(normalized)) {
+      return zipEntryMapRef.current.get(normalized);
+    }
+
+    if (zipSuffixCacheRef.current.has(normalized)) {
+      return zipSuffixCacheRef.current.get(normalized);
+    }
+
+    const suffix = `/${normalized}`;
+
+    for (const [entryPath, entry] of zipEntryMapRef.current.entries()) {
+      if (entryPath.endsWith(suffix)) {
+        zipSuffixCacheRef.current.set(normalized, entry);
+        return entry;
+      }
+    }
+
+    zipSuffixCacheRef.current.set(normalized, null);
+    return null;
+  }
+
+  async function ensureDatasetAssetUrl(pathValue) {
+    const normalized = normalizeZipPath(pathValue);
+    if (!normalized) {
+      return '';
+    }
+
+    if (datasetAssetUrlMapRef.current.has(normalized)) {
+      return datasetAssetUrlMapRef.current.get(normalized);
+    }
+
+    if (pendingAssetLoadsRef.current.has(normalized)) {
+      return pendingAssetLoadsRef.current.get(normalized);
+    }
+
+    const loadPromise = (async () => {
+      const entry = resolveDatasetEntry(normalized);
+      if (!entry) {
+        return '';
+      }
+
+      const blob = await entry.getData(new BlobWriter());
+      const blobUrl = URL.createObjectURL(blob);
+      datasetAssetUrlMapRef.current.set(normalized, blobUrl);
+      setDatasetAssetUrls((previous) => {
+        if (previous[normalized]) {
+          return previous;
+        }
+
+        return {
+          ...previous,
+          [normalized]: blobUrl,
+        };
+      });
+
+      return blobUrl;
+    })()
+      .catch(() => '')
+      .finally(() => {
+        pendingAssetLoadsRef.current.delete(normalized);
+      });
+
+    pendingAssetLoadsRef.current.set(normalized, loadPromise);
+    return loadPromise;
+  }
 
   useEffect(() => {
     let ignore = false;
@@ -274,10 +491,14 @@ function App() {
         }
 
         const loadedRows = await rowsResponse.json();
+        const normalizedRows = Array.isArray(loadedRows) ? loadedRows : [];
 
         if (!ignore) {
           setSubjects(normalizedSubjects);
-          setAllRows(Array.isArray(loadedRows) ? loadedRows : []);
+          setDefaultRows(normalizedRows);
+          if (!datasetMode) {
+            setAllRows(normalizedRows);
+          }
           setError('');
         }
       } catch (loadError) {
@@ -296,6 +517,13 @@ function App() {
 
     return () => {
       ignore = true;
+    };
+  }, [datasetMode]);
+
+  useEffect(() => {
+    return () => {
+      clearDatasetAssetUrls();
+      void closeCurrentReader();
     };
   }, []);
 
@@ -371,6 +599,30 @@ function App() {
   const showRows = useMemo(() => {
     return getShowRows(selectedRow, sortedRows);
   }, [selectedRow, sortedRows]);
+
+  useEffect(() => {
+    if (!datasetMode || !showImagesMode || !selectedRow || showRows.length === 0) {
+      return;
+    }
+
+    let canceled = false;
+
+    async function preloadVisibleImages() {
+      for (const row of showRows) {
+        if (canceled) {
+          return;
+        }
+
+        await ensureDatasetAssetUrl(row.image);
+      }
+    }
+
+    void preloadVisibleImages();
+
+    return () => {
+      canceled = true;
+    };
+  }, [datasetMode, showImagesMode, selectedRow, showRows]);
 
   const sources = useMemo(() => uniqueSortedValues(listRows, 'source'), [listRows]);
   const years = useMemo(() => uniqueSortedValues(listRows, 'year'), [listRows]);
@@ -449,6 +701,31 @@ function App() {
     aosById,
     topicById,
   ]);
+  const majorQuestionRows = useMemo(() => {
+    const seen = new Set();
+    const majors = [];
+
+    for (const row of filteredRows) {
+      const key = getMajorQuestionKey(row);
+      if (seen.has(key)) {
+        continue;
+      }
+
+      seen.add(key);
+      majors.push(row);
+    }
+
+    return majors;
+  }, [filteredRows]);
+
+  const currentMajorIndex = useMemo(() => {
+    if (!selectedRow) {
+      return -1;
+    }
+
+    const selectedKey = getMajorQuestionKey(selectedRow);
+    return majorQuestionRows.findIndex((row) => getMajorQuestionKey(row) === selectedKey);
+  }, [majorQuestionRows, selectedRow]);
 
   const groupedSubjects = useMemo(() => {
     const groups = {};
@@ -478,6 +755,95 @@ function App() {
     window.open(url, '_blank', 'noopener,noreferrer');
   }
 
+  function getRowImageSrc(imagePath) {
+    if (!datasetMode) {
+      return toPublicPath(imagePath);
+    }
+
+    return datasetAssetUrls[normalizeZipPath(imagePath)] || '';
+  }
+
+  function handleRowActivate(row) {
+    if (showImagesMode) {
+      setSelectedRowId(row.id);
+      return;
+    }
+
+    openQuestionLink(row.exam_url);
+  }
+
+  function handleOpenDatasetClick() {
+    fileInputRef.current?.click();
+  }
+
+  async function handleDatasetFileChange(event) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+
+    if (!file) {
+      return;
+    }
+
+    await loadDatasetFromZip(file);
+  }
+
+  async function handleUseBuiltInIndex() {
+    await closeCurrentReader();
+    resetDatasetState(defaultRows);
+    setDatasetError('');
+  }
+
+  function renderDatasetControls() {
+    return (
+      <div className="dataset-actions">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".zip,application/zip"
+          className="file-input-hidden"
+          onChange={(event) => {
+            void handleDatasetFileChange(event);
+          }}
+        />
+
+        <button
+          type="button"
+          className="back-button subject-switch-button"
+          onClick={handleOpenDatasetClick}
+          disabled={datasetLoading}
+        >
+          {datasetLoading ? 'Loading dataset...' : 'Open dataset (.zip)'}
+        </button>
+
+        {datasetMode ? (
+          <button
+            type="button"
+            className="back-button subject-switch-button"
+            onClick={() => {
+              void handleUseBuiltInIndex();
+            }}
+            disabled={datasetLoading}
+          >
+            Use built-in index
+          </button>
+        ) : null}
+      </div>
+    );
+  }
+
+  function goToRelativeMajorQuestion(offset) {
+    if (currentMajorIndex < 0) {
+      return;
+    }
+
+    const nextIndex = currentMajorIndex + offset;
+    if (nextIndex < 0 || nextIndex >= majorQuestionRows.length) {
+      return;
+    }
+
+    setSelectedRowId(majorQuestionRows[nextIndex].id);
+  }
+
   if (subjectCatalogLoading || loading) {
     return <main className="app-shell">Loading subjects...</main>;
   }
@@ -489,9 +855,21 @@ function App() {
   if (!selectedSubject) {
     return (
       <main className="app-shell home-shell">
-        <header className="page-header">
-          <p className="eyebrow">VCE Database</p>
-          <h1>Select Subject</h1>
+        <header className="page-header subject-header">
+          <div className="header-copy">
+            <p className="eyebrow">VCE Database</p>
+            <h1>Select Subject</h1>
+            {datasetMode ? (
+              <p className="summary dataset-summary">
+                Dataset: <strong>{datasetTitle}</strong>
+                {datasetDescription ? ` | ${datasetDescription}` : ''}
+              </p>
+            ) : null}
+            {datasetError ? <p className="summary dataset-error">{datasetError}</p> : null}
+          </div>
+          <div className="header-actions subject-actions">
+            {renderDatasetControls()}
+          </div>
         </header>
 
         {groupedSubjects.map((group) => (
@@ -519,7 +897,7 @@ function App() {
     );
   }
 
-  if (SHOW_IMAGES_BETA && selectedRow) {
+  if (showImagesMode && selectedRow) {
     const subquestion = normalizeSubquestion(selectedRow.subquestion);
     const subquestionLabel = subquestion ? `Subquestion ${subquestion}` : 'Main question';
     const sectionBSelected = isSectionB(selectedRow.section);
@@ -532,23 +910,34 @@ function App() {
     const pageEnds = showRows.map((row) => Number(row.end_page)).filter((value) => !Number.isNaN(value));
     const pageStart = pageStarts.length ? Math.min(...pageStarts) : '?';
     const pageEnd = pageEnds.length ? Math.max(...pageEnds) : '?';
+    const isAtFirstQuestion = currentMajorIndex <= 0;
+    const isAtLastQuestion = currentMajorIndex < 0 || currentMajorIndex >= majorQuestionRows.length - 1;
 
     return (
       <main className="app-shell">
-        <header className="page-header detail-header">
-          <div className="header-actions">
-            <button type="button" className="back-button" onClick={() => setSelectedRowId('')}>
-              Back to questions
+        <header className="page-header subject-header detail-header">
+          <div className="header-copy">
+            <button type="button" className="detail-back-link" onClick={() => setSelectedRowId('')}>
+              <span className="detail-back-icon" aria-hidden="true">
+                &larr;
+              </span>
+              <span>Back to {selectedSubject.name.toUpperCase()}</span>
             </button>
-            <button type="button" className="back-button" onClick={() => setSelectedSubjectToken('')}>
+            <h1>{selectedRow.question_label || selectedRow.id}</h1>
+            <p className="summary">
+              {selectedRow.source} {selectedRow.year} | {selectedRow.section} | Q{selectedRow.question_number} | {subquestionLabel}
+            </p>
+          </div>
+          <div className="header-actions subject-actions">
+            <button
+              type="button"
+              className="back-button subject-switch-button"
+              onClick={() => setSelectedSubjectToken('')}
+            >
               Change subject
             </button>
+            {renderDatasetControls()}
           </div>
-          <p className="eyebrow">{selectedSubject.name}</p>
-          <h1>{selectedRow.question_label || selectedRow.id}</h1>
-          <p className="summary">
-            {selectedRow.source} {selectedRow.year} | {selectedRow.section} | Q{selectedRow.question_number} | {subquestionLabel}
-          </p>
         </header>
 
         <section className="detail-meta">
@@ -568,11 +957,31 @@ function App() {
           </p>
         </section>
 
+        <section className="question-nav" aria-label="question navigation">
+          <button
+            type="button"
+            className="back-button subject-switch-button"
+            onClick={() => goToRelativeMajorQuestion(-1)}
+            disabled={isAtFirstQuestion}
+          >
+            &larr; Previous
+          </button>
+          <button
+            type="button"
+            className="back-button subject-switch-button"
+            onClick={() => goToRelativeMajorQuestion(1)}
+            disabled={isAtLastQuestion}
+          >
+            Next &rarr;
+          </button>
+        </section>
+
         <section className={`image-grid${sectionBSelected ? ' continuous' : ''}`} aria-label="question images">
           {showRows.map((row) => {
             const rowSubquestion = normalizeSubquestion(row.subquestion);
             const rowSubquestionLabel = rowSubquestion ? `Subquestion ${rowSubquestion}` : 'Main question';
             const isClicked = row.id === selectedRowId;
+            const imageSrc = getRowImageSrc(row.image);
 
             return (
               <figure key={row.id} className={`image-card${isClicked ? ' selected' : ''}${sectionBSelected ? ' continuous' : ''}`}>
@@ -584,7 +993,11 @@ function App() {
                     {isClicked ? <span className="selected-pill">Selected</span> : null}
                   </figcaption>
                 )}
-                <img src={toPublicPath(row.image)} alt={row.question_label || row.id} loading="lazy" />
+                {imageSrc ? (
+                  <img src={imageSrc} alt={row.question_label || row.id} loading="lazy" />
+                ) : (
+                  <div className="image-placeholder">Loading image...</div>
+                )}
               </figure>
             );
           })}
@@ -597,14 +1010,27 @@ function App() {
     <main className="app-shell">
       <header className="page-header subject-header">
         <div className="header-copy">
-          <p className="eyebrow">Exam Questions</p>
+          <button type="button" className="detail-back-link" onClick={() => setSelectedSubjectToken('')}>
+            <span className="detail-back-icon" aria-hidden="true">
+              &larr;
+            </span>
+            <span>Back to Subject Selection</span>
+          </button>
           <h1>{selectedSubject.name}</h1>
           <p className="summary">{filteredRows.length} of {listRows.length} questions shown</p>
+          {datasetMode ? (
+            <p className="summary dataset-summary">
+              Dataset: <strong>{datasetTitle}</strong>
+              {datasetDescription ? ` | ${datasetDescription}` : ''}
+            </p>
+          ) : null}
+          {datasetError ? <p className="summary dataset-error">{datasetError}</p> : null}
         </div>
         <div className="header-actions subject-actions">
           <button type="button" className="back-button subject-switch-button" onClick={() => setSelectedSubjectToken('')}>
             Change subject
           </button>
+          {renderDatasetControls()}
         </div>
       </header>
 
@@ -701,11 +1127,11 @@ function App() {
                       className="question-row"
                       role="button"
                       tabIndex={0}
-                      onClick={() => openQuestionLink(row.exam_url)}
+                      onClick={() => handleRowActivate(row)}
                       onKeyDown={(event) => {
                         if (event.key === 'Enter' || event.key === ' ') {
                           event.preventDefault();
-                          openQuestionLink(row.exam_url);
+                          handleRowActivate(row);
                         }
                       }}
                       aria-label={`${row.question_label || row.id} question link`}

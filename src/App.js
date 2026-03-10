@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 const SHOW_IMAGES_BETA = false;
+const BASE_PATH = normalizeBasePath(process.env.NEXT_PUBLIC_BASE_PATH);
 
 const SUBQUESTION_ORDER = {
   '': 0,
@@ -89,16 +90,35 @@ function isSectionB(sectionValue) {
   return String(sectionValue || '').toLowerCase().includes('section b');
 }
 
+function normalizeBasePath(pathValue) {
+  const value = String(pathValue || '');
+  if (!value || value === '/') {
+    return '';
+  }
+
+  return value.endsWith('/') ? value.slice(0, -1) : value;
+}
+
+function withBasePath(pathValue) {
+  const path = String(pathValue || '');
+  if (!path) {
+    return BASE_PATH || '';
+  }
+
+  if (/^https?:\/\//i.test(path)) {
+    return path;
+  }
+
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${BASE_PATH}${normalizedPath}`;
+}
+
 function toPublicPath(pathValue) {
   if (!pathValue) {
     return '';
   }
 
-  if (String(pathValue).startsWith('/')) {
-    return pathValue;
-  }
-
-  return `/${pathValue}`;
+  return withBasePath(pathValue);
 }
 
 function getShowRows(selectedRow, allRows) {
@@ -228,8 +248,8 @@ function App() {
         setLoading(true);
 
         const [subjectTaxonomyResponse, rowsResponse] = await Promise.all([
-          fetch('/config/subject_taxonomy.json'),
-          fetch('/data.json'),
+          fetch(withBasePath('/config/subject_taxonomy.json')),
+          fetch(withBasePath('/data.json')),
         ]);
 
         if (!subjectTaxonomyResponse.ok) {
